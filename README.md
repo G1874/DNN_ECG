@@ -2,7 +2,7 @@
 Wykrywanie migotania przedsionków na sygnałach ECG.
 
 ### Biblioteki:
-* wfdb
+* wfdb - pobieranie baz danych
 
 ### Źródła:
 1. Bazy danych - https://physionet.org/about/database/
