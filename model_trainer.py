@@ -1,0 +1,78 @@
+from torch.utils.data import DataLoader
+import torch
+
+class ModelTrainer():
+    def __init__(self):
+        pass
+
+    def train_model(self, net, train_loader:DataLoader, val_loader:DataLoader,
+                    loss_fn, optimizer, device:torch.device, epchos:int):
+        self.net = net
+        self.train_loader = train_loader
+        self.loss_fn = loss_fn
+        self.optimizer = optimizer
+        self.device = device
+
+        for epoch in range(epchos):
+            print(f'EPOCH {epoch + 1}:')
+
+            avg_loss = self.train_one_epoch()
+
+            avg_vloss, vaccuracy = self.validate_model(
+                self.net,
+                val_loader,
+                self.loss_fn,
+                self.device
+            )
+
+            print(f'LOSS train {avg_loss} valid {avg_vloss} ACCURACY {vaccuracy}')
+
+    def train_one_epoch(self):
+        self.net.train()
+
+        running_loss = 0
+        last_loss = 0
+        num_batches = len(self.train_loader)
+
+        for i, data in enumerate(self.train_loader):
+            inputs, refrence = data[0].to(self.device), data[1].to(self.device)
+
+            self.optimizer.zero_grad()
+            outputs = self.net(inputs)
+            loss = self.loss_fn(outputs, refrence)
+            loss.backward()
+            self.optimizer.step()
+
+            running_loss += loss.item()
+            if (i % (num_batches // 5)) == ((num_batches // 5) - 1):
+                last_loss = running_loss / (num_batches // 5)
+                print(f'\tbatch {i + 1} loss: {last_loss}')
+                running_loss = 0
+
+        return last_loss
+
+    def validate_model(self, net, val_loader:DataLoader,
+                       loss_fn, device:torch.device):
+        net.eval()
+        
+        running_loss = 0
+        correct = 0
+        total = 0
+        
+        with torch.no_grad():
+            for i, data in enumerate(val_loader):
+                inputs, refrence = data[0].to(device), data[1].to(device)
+
+                outputs = net(inputs)
+                
+                loss = loss_fn(outputs, refrence)
+                running_loss += loss.item()
+
+                predictions = torch.max(outputs, 1)[1].to(device)
+                correct += (predictions == refrence).sum()
+                total += len(refrence)
+
+        avg_loss = running_loss / (i + 1)
+        accuracy = correct / total
+
+        return avg_loss, accuracy
