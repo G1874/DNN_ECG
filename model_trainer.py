@@ -13,11 +13,9 @@ class ModelTrainer():
         self.optimizer = optimizer
         self.device = device
 
-        for epoch in range(epchos):
-            self.net.train(True)
+        for epoch in range(epchos):            
             self.train_one_epoch()
-
-            self.net.eval()
+            
             self.validate_model(
                 self.net,
                 val_loader,
@@ -26,6 +24,8 @@ class ModelTrainer():
             )
 
     def train_one_epoch(self):
+        self.net.train(True)
+
         for i, data in enumerate(self.train_loader):
             inputs, refrence = data[0].to(self.device), data[1].to(self.device)
 
@@ -35,7 +35,20 @@ class ModelTrainer():
             loss.backward()
             self.optimizer.step()
 
-
     def validate_model(self, net, val_loader:DataLoader,
                        loss_fn, device:torch.device):
-        pass
+        net.eval()
+        
+        correct = 0
+        total = 0
+        
+        with torch.no_grad():
+            for i, data in enumerate(val_loader):
+                inputs, refrence = data[0].to(device), data[1].to(device)
+
+                outputs = net(inputs)
+                loss = loss_fn(outputs, refrence)
+                
+                running_loss += loss
+        avg_loss = running_loss / (i + 1)
+        return avg_loss
