@@ -54,7 +54,7 @@ class EcgDatasetCompiler():
                 ann_samples[0]
             )
 
-            n_sample_idx, afib_sample_idx = self.writeToDataset(
+            n_sample_idx, afib_sample_idx = self.saveToDataset(
                 waveform_slices,
                 mask_slices,
                 n_sample_idx,
@@ -88,7 +88,7 @@ class EcgDatasetCompiler():
 
         return waveform_slices, mask_slices
     
-    def writeToDataset(self, waveform_slices, mask_slices, first_n_sample_idx, first_afib_sample_idx):
+    def saveToDataset(self, waveform_slices, mask_slices, first_n_sample_idx, first_afib_sample_idx):
         Path(self.dst_path + "/afib_samples").mkdir(parents=True, exist_ok=True)
         Path(self.dst_path + "/n_samples").mkdir(parents=True, exist_ok=True)
 
@@ -106,6 +106,7 @@ class EcgDatasetCompiler():
                 i += 1
         
         return i, j 
+
 
 class EcgDataset(Dataset):
     def __init__(self, root: str, transform=None):
