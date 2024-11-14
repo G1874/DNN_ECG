@@ -10,4 +10,4 @@ Wykrywanie migotania przedsionków na sygnałach ECG.
     * https://physionet.org/content/afdb/1.0.0/
     * https://physionet.org/content/ltafdb/1.0.0/
 2. Artykuły
-    * https://www-1sciencedirect-1com-1q5yy4occ010c.wbg2.bg.agh.edu.pl/science/article/pii/S0010482517304043?via%3Dihub
+    * [Detecting atrial fibrillation by deep convolutional neural networks](https://www-1webofscience-1com-1q5yy4oq600f4.wbg2.bg.agh.edu.pl/wos/woscc/full-record/WOS:000424187100009)
