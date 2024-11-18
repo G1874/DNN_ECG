@@ -21,14 +21,14 @@ class EcgDatasetCompiler():
         n_sample_idx = first_n_sample_idx
         afib_sample_idx = first_afib_sample_idx
 
-        for recordIdx in RECORDS:
+        for record_idx in RECORDS:
             try:
-                record = wfdb.rdrecord(src_path + "/" + recordIdx)
+                record = wfdb.rdrecord(src_path + "/" + record_idx)
             except:
-                print(f"Failed to load record {recordIdx}")
+                print(f"Failed to load record {record_idx}")
                 continue
 
-            annotation = wfdb.rdann(src_path + "/" + recordIdx, 'atr')
+            annotation = wfdb.rdann(src_path + "/" + record_idx, 'atr')
             waveform = record.p_signal[:,0]
 
             if record.fs != self.fs:
@@ -54,11 +54,10 @@ class EcgDatasetCompiler():
                 ann_samples[0]
             )
 
-            n_sample_idx, afib_sample_idx = self.saveToDataset(
+            self.saveToDataset(
                 waveform_slices,
                 mask_slices,
-                n_sample_idx,
-                afib_sample_idx
+                record_idx
             )
 
     def getAfibMask(self, waveform, ann_samples, ann_labels):
@@ -88,24 +87,29 @@ class EcgDatasetCompiler():
 
         return waveform_slices, mask_slices
     
-    def saveToDataset(self, waveform_slices, mask_slices, first_n_sample_idx, first_afib_sample_idx):
+    def saveToDataset(self, waveform_slices, mask_slices, record_idx): # TODO: CSV file to track samples.
         Path(self.dst_path + "/afib_samples").mkdir(parents=True, exist_ok=True)
         Path(self.dst_path + "/n_samples").mkdir(parents=True, exist_ok=True)
 
-        i = first_n_sample_idx
-        j = first_afib_sample_idx
+        afib_dict = dict()
+        n_dict = dict()
+
+        i = 1
+        j = 1
         for waveform_slice, mask_slice in zip(waveform_slices, mask_slices):
             afib_ratio = np.sum(mask_slice) / mask_slice.size
             if afib_ratio > self.afib_thresh:
-                with open(f"{self.dst_path}/afib_samples/afib{j}.npy","wb") as f:
-                    np.save(f, waveform_slice) # TODO: Change file format to .npz
+                afib_dict[f"afib{j}"] = waveform_slice
                 j += 1
             else:
-                with open(f"{self.dst_path}/n_samples/n{i}.npy","wb") as f:
-                    np.save(f, waveform_slice)
+                n_dict[f"n{i}"] = waveform_slice
                 i += 1
-        
-        return i, j 
+
+        np.savez(f"{self.dst_path}/afib_samples/afib_samples_record_{record_idx}.npz", **afib_dict)
+        np.savez(f"{self.dst_path}/n_samples/n_samples_record_{record_idx}.npz", **n_dict)
+
+    def balanceDataset():
+        pass
 
 
 class EcgDataset(Dataset):
