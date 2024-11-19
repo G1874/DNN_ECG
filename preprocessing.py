@@ -12,14 +12,11 @@ class EcgDatasetCompiler():
         self.filter = filter
         self.afib_thresh = afib_thresh
 
-    def compileEcgDataset(self, src_path: str, first_n_sample_idx: int, first_afib_sample_idx: int):
+    def compileEcgDataset(self, src_path: str):
         with open(src_path + "/RECORDS") as file:
             RECORDS = file.read()
 
         RECORDS = [item for item in RECORDS.split("\n") if item]
-
-        n_sample_idx = first_n_sample_idx
-        afib_sample_idx = first_afib_sample_idx
 
         for record_idx in RECORDS:
             try:
