@@ -1,6 +1,15 @@
 ### Zadanie:
 Wykrywanie migotania przedsionków na sygnałach ECG.
 
+### TODO
+- [x] Klasa do trenowania sieci i walidacji
+- [x] Dzielenie danych na 5-sekundowe fragmenty
+- [] Filtracja
+- [] Zbalansowanie ilości próbek danych klas
+- [] Dataset i Dataloader
+- [] Pierwsza wersja sieci
+- [] Detekcja dostosowana do wymagań Darka
+
 ### Biblioteki:
 * wfdb - pobieranie baz danych
 * numpy 1.26.4 - starsza wersja żeby wfdb działało
