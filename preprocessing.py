@@ -2,6 +2,11 @@ from torch.utils.data import Dataset
 import wfdb
 import numpy as np
 from pathlib import Path
+import csv
+import json
+import os
+import random
+import shutil
 
 
 class EcgDatasetCompiler():
@@ -17,6 +22,10 @@ class EcgDatasetCompiler():
             RECORDS = file.read()
 
         RECORDS = [item for item in RECORDS.split("\n") if item]
+        sample_listing = []
+        num_n_samples = 0
+        num_afib_samples = 0
+        info_dict = dict()
 
         for record_idx in RECORDS:
             try:
@@ -51,11 +60,26 @@ class EcgDatasetCompiler():
                 ann_samples[0]
             )
 
-            self.saveToDataset(
+            num_n, num_afib = self.saveToDataset(
                 waveform_slices,
                 mask_slices,
-                record_idx
+                record_idx,
+                sample_listing
             )
+
+            info_dict[f"num_n_{record_idx}"] = num_n
+            info_dict[f"num_afib_{record_idx}"] = num_afib
+            num_n_samples += num_n
+            num_afib_samples += num_afib
+
+        with open(self.dst_path + "/sample_listing.csv", 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerows(sample_listing)
+
+        info_dict["num_n_total"] = num_n_samples
+        info_dict["num_afib_total"] = num_afib_samples
+        with open(self.dst_path + "/info.txt", 'w') as f:
+            json.dump(info_dict, f)
 
     def getAfibMask(self, waveform, ann_samples, ann_labels):
         afib_mask = np.zeros(waveform.shape[0])
@@ -84,29 +108,85 @@ class EcgDatasetCompiler():
 
         return waveform_slices, mask_slices
     
-    def saveToDataset(self, waveform_slices, mask_slices, record_idx): # TODO: CSV file to track samples.
+    def saveToDataset(self, waveform_slices, mask_slices, record_idx, sample_listing):
         Path(self.dst_path + "/afib_samples").mkdir(parents=True, exist_ok=True)
         Path(self.dst_path + "/n_samples").mkdir(parents=True, exist_ok=True)
 
         afib_dict = dict()
         n_dict = dict()
+        sample_list = [f"record_{record_idx}"]
 
-        i = 1
-        j = 1
+        i = 0; j = 0
         for waveform_slice, mask_slice in zip(waveform_slices, mask_slices):
             afib_ratio = np.sum(mask_slice) / mask_slice.size
             if afib_ratio > self.afib_thresh:
-                afib_dict[f"afib{j}"] = waveform_slice
                 j += 1
+                afib_dict[f"afib{j}"] = waveform_slice
+                sample_list.append(f"afib{j}")
             else:
-                n_dict[f"n{i}"] = waveform_slice
                 i += 1
+                n_dict[f"n{i}"] = waveform_slice
+                sample_list.append(f"n{i}")
 
         np.savez(f"{self.dst_path}/afib_samples/afib_samples_record_{record_idx}.npz", **afib_dict)
         np.savez(f"{self.dst_path}/n_samples/n_samples_record_{record_idx}.npz", **n_dict)
+        sample_listing.append(sample_list)
 
-    def balanceDataset():
-        pass
+        return i, j
+
+    def restructureDataset(self, deleteFiles=False):
+        Path(self.dst_path + "/dataset").mkdir(parents=True, exist_ok=True)
+
+        with open(self.dst_path + "/info.txt", "r") as f:
+            info_dict = json.load(f)
+
+        num_n_samples = info_dict["num_n_total"]
+        num_afib_samples = info_dict["num_afib_total"]
+
+        train_dataset = dict()
+        sample_idx = 0
+        file_idx = 0
+
+        if num_afib_samples < num_n_samples:
+            minority_set = "/afib_samples/"
+            majority_set = "/n_samples/"
+            random_indices = random.sample(range(num_n_samples), num_afib_samples)
+        else:
+            minority_set = "/n_samples/"
+            majority_set = "/afib_samples/"
+            random_indices = random.sample(range(num_afib_samples), num_n_samples)
+
+        random_indices.sort()
+
+        for file in os.listdir(self.dst_path + minority_set): # TODO: create annotations in csv.
+            record = dict(np.load(self.dst_path + minority_set + file))
+            for key in record.keys():
+                train_dataset[f"sample{sample_idx}"] = record[key]
+                sample_idx += 1
+                if len(train_dataset) == 10000:
+                    np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **train_dataset)
+                    file_idx += 1
+                    train_dataset.clear()
+
+        for file in os.listdir(self.dst_path + majority_set):
+            record = dict(np.load(self.dst_path + majority_set + file))
+            key_list = list(record.keys())
+            # record_indices = filter(lambda x: x>) # TODO: Get samples with random indices from record.
+            key_list = key_list[random_indices[random_indices<len(record)]]
+            for key in record.keys():
+                train_dataset[f"sample{sample_idx}"] = record[key]
+                sample_idx += 1
+                if len(train_dataset) == 10000:
+                    np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **train_dataset)
+                    file_idx += 1
+                    train_dataset.clear()
+                
+        if train_dataset:
+            np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **train_dataset)
+
+        if deleteFiles:
+            shutil.rmtree(self.dst_path + "/n_samples")
+            shutil.rmtree(self.dst_path + "/afib_samples")
 
 
 class EcgDataset(Dataset):
