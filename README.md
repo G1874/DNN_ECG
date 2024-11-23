@@ -5,7 +5,7 @@ Wykrywanie migotania przedsionków na sygnałach ECG.
 - [x] Klasa do trenowania sieci i walidacji
 - [x] Dzielenie danych na 5-sekundowe fragmenty
 - [ ] Filtracja
-- [ ] Zbalansowanie ilości próbek danych klas
+- [x] Zbalansowanie ilości próbek danych klas
 - [ ] Dataset i Dataloader
 - [ ] Pierwsza wersja sieci
 - [ ] Detekcja dostosowana do wymagań Darka
@@ -13,6 +13,7 @@ Wykrywanie migotania przedsionków na sygnałach ECG.
 ### Biblioteki:
 * wfdb - pobieranie baz danych
 * numpy 1.26.4 - starsza wersja żeby wfdb działało
+* tqdm - terminal progress bar 
 
 ### Źródła:
 1. Bazy danych - https://physionet.org/about/database/
