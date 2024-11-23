@@ -13,7 +13,9 @@ Wykrywanie migotania przedsionków na sygnałach ECG.
 ### Biblioteki:
 * wfdb - pobieranie baz danych
 * numpy 1.26.4 - starsza wersja żeby wfdb działało
-* tqdm - terminal progress bar 
+* tqdm - terminal progress bar
+* pandas
+* torch
 
 ### Źródła:
 1. Bazy danych - https://physionet.org/about/database/
