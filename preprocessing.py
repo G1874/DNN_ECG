@@ -7,6 +7,7 @@ import json
 import os
 import random
 import shutil
+from tqdm import tqdm
 
 
 class EcgDatasetCompiler():
@@ -27,11 +28,12 @@ class EcgDatasetCompiler():
         num_afib_samples = 0
         info_dict = dict()
 
-        for record_idx in RECORDS:
+        print("Compiling dataset")
+        for record_idx in tqdm(RECORDS):
             try:
                 record = wfdb.rdrecord(src_path + "/" + record_idx)
             except:
-                print(f"Failed to load record {record_idx}")
+                print(f" Failed to load record {record_idx}")
                 continue
 
             annotation = wfdb.rdann(src_path + "/" + record_idx, 'atr')
@@ -71,6 +73,8 @@ class EcgDatasetCompiler():
             info_dict[f"num_afib_{record_idx}"] = num_afib
             num_n_samples += num_n
             num_afib_samples += num_afib
+        
+        print("Done")
 
         with open(self.dst_path + "/sample_listing.csv", 'w', newline='') as f:
             writer = csv.writer(f)
@@ -143,6 +147,7 @@ class EcgDatasetCompiler():
         num_n_samples = info_dict["num_n_total"]
         num_afib_samples = info_dict["num_afib_total"]
 
+        annotation = []
         train_dataset = dict()
         sample_idx = 0
         file_idx = 0
@@ -158,35 +163,55 @@ class EcgDatasetCompiler():
 
         random_indices.sort()
 
-        for file in os.listdir(self.dst_path + minority_set): # TODO: create annotations in csv.
+        print("Restructuring the dataset")
+        print(minority_set)
+        for file in tqdm(os.listdir(self.dst_path + minority_set)):
             record = dict(np.load(self.dst_path + minority_set + file))
             for key in record.keys():
                 train_dataset[f"sample{sample_idx}"] = record[key]
+                annotation.append([file_idx,sample_idx,1])
                 sample_idx += 1
                 if len(train_dataset) == 10000:
                     np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **train_dataset)
                     file_idx += 1
                     train_dataset.clear()
+        print("Done")
 
-        for file in os.listdir(self.dst_path + majority_set):
+        lower_bound = 0
+        upper_bound = 0
+
+        print(majority_set)
+        for file in tqdm(os.listdir(self.dst_path + majority_set)):
             record = dict(np.load(self.dst_path + majority_set + file))
             key_list = list(record.keys())
-            # record_indices = filter(lambda x: x>) # TODO: Get samples with random indices from record.
-            key_list = key_list[random_indices[random_indices<len(record)]]
-            for key in record.keys():
+
+            upper_bound += len(key_list)
+            record_indices = list(filter(lambda x: x >= lower_bound and x < upper_bound, random_indices))
+            key_list = [key_list[i-lower_bound] for i in record_indices]
+            lower_bound = upper_bound
+            
+            for key in key_list:
                 train_dataset[f"sample{sample_idx}"] = record[key]
+                annotation.append([file_idx,sample_idx,0])
                 sample_idx += 1
                 if len(train_dataset) == 10000:
                     np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **train_dataset)
                     file_idx += 1
                     train_dataset.clear()
-                
+        print("Done")
+
         if train_dataset:
             np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **train_dataset)
+
+        with open(self.dst_path + "/dataset/annotation.csv", 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerows(annotation)
 
         if deleteFiles:
             shutil.rmtree(self.dst_path + "/n_samples")
             shutil.rmtree(self.dst_path + "/afib_samples")
+            os.remove(self.dst_path + "/info.txt")
+            os.remove(self.dst_path + "/sample_listing.csv")
 
 
 class EcgDataset(Dataset):
