@@ -1,13 +1,15 @@
-from torch.utils.data import Dataset
-import wfdb
 import numpy as np
+import pandas as pd
+import random
+import wfdb
+import torch
+from torch.utils.data import Dataset
+from tqdm import tqdm
 from pathlib import Path
+import os
+import shutil
 import csv
 import json
-import os
-import random
-import shutil
-from tqdm import tqdm
 
 
 class EcgDatasetCompiler():
@@ -205,6 +207,7 @@ class EcgDatasetCompiler():
 
         with open(self.dst_path + "/dataset/annotation.csv", 'w', newline='') as f:
             writer = csv.writer(f)
+            writer.writerow(["FileIdx","SampleIdx","Label"])
             writer.writerows(annotation)
 
         if deleteFiles:
@@ -215,23 +218,45 @@ class EcgDatasetCompiler():
 
 
 class EcgDataset(Dataset):
-    def __init__(self, root: str, transform=None):
-        self.root = root
+    def __init__(self, root_dir: str, transform=None):
+        self.root = root_dir
         self.transform = transform
+        self.annotation = np.array(pd.read_csv(root_dir + "/annotation.csv"))
+        self.labels = self.annotation[:,2]
+        self.idx2file = self.annotation[:,0]
+        file_names = [file for file in os.listdir(self.root) if file.startswith("samples")]
+        file_names.sort(key=lambda x: int((x[7:])[:-4]))
+        self.sample_files = [np.load(os.path.join(self.root,file_name)) for file_name in file_names]
 
     def __len__(self):
-        pass
+        return self.labels.size
 
     def __getitem__(self, idx):
-        pass
+        file_idx = self.idx2file[idx]
+        sample_file = self.sample_files[file_idx]
+        sample = sample_file.get(f"sample{idx}")
+        label = self.labels[idx]
 
+        if self.transform:
+            sample = self.transform(sample)
+
+        return sample, label
+        
 
 class ToSpectrogram():
     def __init__(self):
         pass
 
-    def __call__(self):
+    def __call__(self, sample):
+        return sample
+
+
+class ToTensor():
+    def __init__(self):
         pass
+
+    def __call__(self, sample):
+        return sample
 
 
 class BandPassFilter():
