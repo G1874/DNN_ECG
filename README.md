@@ -6,9 +6,11 @@ Wykrywanie migotania przedsionków na sygnałach ECG.
 - [x] Dzielenie danych na 5-sekundowe fragmenty
 - [ ] Filtracja
 - [x] Zbalansowanie ilości próbek danych klas
-- [ ] Dataset i Dataloader
+- [x] Dataset i Dataloader
+- [ ] Podzielić dataset na trening i walidacje
+- [ ] Transformacje (ToSpectrogram i ToTensor)
 - [ ] Pierwsza wersja sieci
-- [ ] Detekcja dostosowana do wymagań Darka
+- [ ] Detekcja dostosowana do wymagań ewaluacji
 
 ### Biblioteki:
 * wfdb - pobieranie baz danych
