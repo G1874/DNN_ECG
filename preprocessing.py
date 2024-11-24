@@ -1,4 +1,7 @@
 import numpy as np
+import scipy as sc
+from scipy.signal import ShortTimeFFT
+from scipy.signal.windows import hamming
 import pandas as pd
 import random
 import wfdb
@@ -244,19 +247,25 @@ class EcgDataset(Dataset):
         
 
 class ToSpectrogram():
-    def __init__(self):
-        pass
+    def __init__(self, configuration: dict):
+        self.w_N = configuration["window_size"]
+        self.hop = configuration["shift_size"]
+        self.fs = configuration["fs"]
 
     def __call__(self, sample):
-        return sample
+        w = hamming(self.w_N, True)
+        STFT = ShortTimeFFT(w, self.hop, self.fs)
+        Sx2 = STFT.spectrogram(sample)
+        Sx_dB = 10 * np.log10(np.clip(Sx2, 1e-4, 1e4))
+        Sx_dB = np.flip(Sx_dB, axis=0)
+
+        return Sx_dB.copy()
 
 
 class ToTensor():
-    def __init__(self):
-        pass
-
     def __call__(self, sample):
-        return sample
+        sample = torch.tensor(sample)
+        return sample.reshape((-1,1,sample.shape[0],sample.shape[1]))
 
 
 class BandPassFilter():
