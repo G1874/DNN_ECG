@@ -13,14 +13,15 @@ import os
 import shutil
 import csv
 import json
+from scipy.signal import butter, filtfilt
 
 
 class EcgDatasetCompiler():
-    def __init__(self, dst_path: str, fs: int, sample_size: int, afib_thresh: float, filter=None):
+    def __init__(self, dst_path: str, fs: int, sample_size: int, afib_thresh: float):
         self.dst_path = dst_path
         self.fs = fs
         self.slice_length = sample_size
-        self.filter = filter
+        self.filter = BandPassFilter()
         self.afib_thresh = afib_thresh
 
     def compileEcgDataset(self, src_path: str):
@@ -53,7 +54,7 @@ class EcgDatasetCompiler():
                 )
 
             if self.filter is not None:
-                pass # TODO: Filter the waveform
+                waveform = self.filter(waveform)
         
             ann_labels = annotation.aux_note
             ann_samples = annotation.sample
@@ -270,7 +271,11 @@ class ToTensor():
 
 class BandPassFilter():
     def __init__(self):
-        pass
+        self.lowcut = 0.5
+        self.highcut = 50
+        self.fs = 250
+        self.order = 5
+        self.b, self.a = butter(self.order, [self.lowcut / (0.5 * self.fs), self.highcut / (0.5 * self.fs)], btype='band')
 
-    def __call__(self):
-        pass
+    def __call__(self, signal):
+        return filtfilt(self.b, self.a, signal)
