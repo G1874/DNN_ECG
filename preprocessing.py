@@ -256,6 +256,7 @@ class ToSpectrogram():
         STFT = ShortTimeFFT(w, self.hop, self.fs)
         Sx2 = STFT.spectrogram(sample)
         Sx_dB = 10 * np.log10(np.clip(Sx2, 1e-4, 1e4))
+        Sx_dB = Sx_dB[:,(-STFT.p_min):(STFT.p_max(sample.shape[0]))]
         Sx_dB = np.flip(Sx_dB, axis=0)
 
         return Sx_dB.copy()
