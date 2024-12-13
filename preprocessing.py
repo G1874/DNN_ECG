@@ -143,7 +143,7 @@ class EcgDatasetCompiler():
 
         return i, j
 
-    def restructureDataset(self, deleteFiles=False):
+    def restructureDataset(self, delete_files=False, max_file_samples=10000):
         Path(self.dst_path + "/dataset").mkdir(parents=True, exist_ok=True)
 
         with open(self.dst_path + "/info.txt", "r") as f:
@@ -153,7 +153,7 @@ class EcgDatasetCompiler():
         num_afib_samples = info_dict["num_afib_total"]
 
         annotation = []
-        train_dataset = dict()
+        dataset = dict()
         sample_idx = 0
         file_idx = 0
 
@@ -168,26 +168,26 @@ class EcgDatasetCompiler():
 
         random_indices.sort()
 
-        print("Restructuring the dataset")
-        print(minority_set)
-        for file in tqdm(os.listdir(self.dst_path + minority_set)):
-            record = dict(np.load(self.dst_path + minority_set + file))
-            for key in record.keys():
-                train_dataset[f"sample{sample_idx}"] = record[key]
-                annotation.append([file_idx,sample_idx,1])
-                sample_idx += 1
-                if len(train_dataset) == 10000:
-                    np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **train_dataset)
-                    file_idx += 1
-                    train_dataset.clear()
-        print("Done")
-
         lower_bound = 0
         upper_bound = 0
 
-        print(majority_set)
-        for file in tqdm(os.listdir(self.dst_path + majority_set)):
-            record = dict(np.load(self.dst_path + majority_set + file))
+        print("Restructuring the dataset")
+        for file1, file2 in zip(tqdm(os.listdir(self.dst_path + minority_set)),
+                                     os.listdir(self.dst_path + majority_set)):
+            
+            record = dict(np.load(self.dst_path + minority_set + file1))
+            key_list = list(record.keys())
+
+            for key in key_list:
+                dataset[f"sample{sample_idx}"] = record[key]
+                annotation.append([file_idx,sample_idx,int(key[0]!='n')])
+                sample_idx += 1
+                if len(dataset) == max_file_samples:
+                    np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **dataset)
+                    file_idx += 1
+                    dataset.clear()
+
+            record = dict(np.load(self.dst_path + majority_set + file2))
             key_list = list(record.keys())
 
             upper_bound += len(key_list)
@@ -196,24 +196,23 @@ class EcgDatasetCompiler():
             lower_bound = upper_bound
             
             for key in key_list:
-                train_dataset[f"sample{sample_idx}"] = record[key]
-                annotation.append([file_idx,sample_idx,0])
+                dataset[f"sample{sample_idx}"] = record[key]
+                annotation.append([file_idx,sample_idx,int(key[0]!='n')])
                 sample_idx += 1
-                if len(train_dataset) == 10000:
-                    np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **train_dataset)
+                if len(dataset) == max_file_samples:
+                    np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **dataset)
                     file_idx += 1
-                    train_dataset.clear()
-        print("Done")
+                    dataset.clear()
 
-        if train_dataset:
-            np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **train_dataset)
+        if dataset:
+            np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **dataset)
 
         with open(self.dst_path + "/dataset/annotation.csv", 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(["FileIdx","SampleIdx","Label"])
             writer.writerows(annotation)
 
-        if deleteFiles:
+        if delete_files:
             shutil.rmtree(self.dst_path + "/n_samples")
             shutil.rmtree(self.dst_path + "/afib_samples")
             os.remove(self.dst_path + "/info.txt")
@@ -226,17 +225,17 @@ class EcgDataset(Dataset):
         self.transform = transform
         self.annotation = np.array(pd.read_csv(root_dir + "/annotation.csv"))
         self.labels = self.annotation[:,2]
-        self.idx2file = self.annotation[:,0]
+        self.file_idx = self.annotation[:,0]
         file_names = [file for file in os.listdir(self.root) if file.startswith("samples")]
         file_names.sort(key=lambda x: int((x[7:])[:-4]))
-        self.sample_files = [np.load(os.path.join(self.root,file_name)) for file_name in file_names]
+        self.sample_files = [np.load(os.path.join(self.root,file_name))
+                             for file_name in file_names]
 
     def __len__(self):
         return self.labels.size
 
     def __getitem__(self, idx):
-        file_idx = self.idx2file[idx]
-        sample_file = self.sample_files[file_idx]
+        sample_file = self.sample_files[self.file_idx[idx]]
         sample = sample_file.get(f"sample{idx}")
         label = self.labels[idx]
 
@@ -249,7 +248,7 @@ class EcgDataset(Dataset):
 class ToSpectrogram():
     def __init__(self, configuration: dict):
         self.w_N = configuration["window_size"]
-        self.hop = configuration["shift_size"]
+        self.hop = configuration["stride"]
         self.fs = configuration["fs"]
 
     def __call__(self, sample):
@@ -257,6 +256,7 @@ class ToSpectrogram():
         STFT = ShortTimeFFT(w, self.hop, self.fs)
         Sx2 = STFT.spectrogram(sample)
         Sx_dB = 10 * np.log10(np.clip(Sx2, 1e-4, 1e4))
+        Sx_dB = Sx_dB[:,(-STFT.p_min):(STFT.p_max(sample.shape[0]))]
         Sx_dB = np.flip(Sx_dB, axis=0)
 
         return Sx_dB.copy()
