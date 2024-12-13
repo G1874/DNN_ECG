@@ -61,16 +61,16 @@ class ModelTrainer():
         
         with torch.no_grad():
             for i, data in enumerate(val_loader):
-                inputs, refrence = data[0].to(device), data[1].to(device)
+                inputs, reference = data[0].to(device), data[1].to(device)
 
                 outputs = net(inputs)
                 
-                loss = loss_fn(outputs, refrence)
+                loss = loss_fn(outputs, reference)
                 running_loss += loss.item()
 
                 predictions = torch.max(outputs, 1)[1].to(device)
-                correct += (predictions == refrence).sum()
-                total += len(refrence)
+                correct += (predictions == reference).sum()
+                total += len(reference)
 
         avg_loss = running_loss / (i + 1)
         accuracy = correct / total
