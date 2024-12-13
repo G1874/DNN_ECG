@@ -13,4 +13,4 @@ ecgDatasetCompiler = EcgDatasetCompiler(
 )
 
 ecgDatasetCompiler.compileEcgDataset("./Data/mit_bih_atrial_fibrillation_database/files")
-ecgDatasetCompiler.restructureDataset(delete_files=True, max_file_samples=200000)
+ecgDatasetCompiler.restructureDataset(delete_files=True, max_file_samples=10000)
