@@ -16,12 +16,13 @@ import json
 
 
 class EcgDatasetCompiler():
-    def __init__(self, dst_path: str, fs: int, sample_size: int, afib_thresh: float, filter=None):
+    def __init__(self, dst_path: str, fs: int, sample_size: int, afib_thresh: float, filter=None, transform=None):
         self.dst_path = dst_path
         self.fs = fs
         self.slice_length = sample_size
         self.filter = filter
         self.afib_thresh = afib_thresh
+        self.transform = transform
 
     def compileEcgDataset(self, src_path: str):
         with open(src_path + "/RECORDS") as file:
@@ -179,8 +180,14 @@ class EcgDatasetCompiler():
             key_list = list(record.keys())
 
             for key in key_list:
-                dataset[f"sample{sample_idx}"] = record[key]
+                sample = record[key]
+                
+                if self.transform:
+                    sample = self.transform(sample)
+                
+                dataset[f"sample{sample_idx}"] = sample
                 annotation.append([file_idx,sample_idx,int(key[0]!='n')])
+                
                 sample_idx += 1
                 if len(dataset) == max_file_samples:
                     np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **dataset)
@@ -196,8 +203,14 @@ class EcgDatasetCompiler():
             lower_bound = upper_bound
             
             for key in key_list:
-                dataset[f"sample{sample_idx}"] = record[key]
+                sample = record[key]
+                
+                if self.transform:
+                    sample = self.transform(sample)
+                
+                dataset[f"sample{sample_idx}"] = sample
                 annotation.append([file_idx,sample_idx,int(key[0]!='n')])
+                
                 sample_idx += 1
                 if len(dataset) == max_file_samples:
                     np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **dataset)
