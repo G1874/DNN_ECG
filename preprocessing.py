@@ -277,8 +277,8 @@ class ToSpectrogram():
 
 class ToTensor():
     def __call__(self, sample):
-        sample = torch.tensor(sample)
-        return sample.reshape((-1,1,sample.shape[0],sample.shape[1]))
+        sample = torch.tensor(sample.astype(np.float32))
+        return sample.reshape((1,sample.shape[0],sample.shape[1]))
 
 
 class BandPassFilter():
