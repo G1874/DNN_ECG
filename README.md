@@ -4,13 +4,15 @@ Wykrywanie migotania przedsionków na sygnałach ECG.
 ### TODO
 - [x] Klasa do trenowania sieci i walidacji
 - [x] Dzielenie danych na 5-sekundowe fragmenty
-- [ ] Filtracja
+- [x] Filtracja
 - [x] Zbalansowanie ilości próbek danych klas
 - [x] Dataset i Dataloader
 - [x] Podzielić dataset na trening i walidacje
 - [x] Transformacje (ToSpectrogram i ToTensor)
-- [ ] Pierwsza wersja sieci
+- [x] Pierwsza wersja sieci
 - [ ] Detekcja dostosowana do wymagań ewaluacji
+- [ ] Sprawdzić działanie inferencji na testerce
+- [ ] Zweryfikować poprawność kodu do kompozycji datasetu i treningu sieci
 
 ### Biblioteki:
 * wfdb - pobieranie baz danych
