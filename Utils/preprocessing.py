@@ -17,12 +17,13 @@ from scipy.signal import butter, filtfilt
 
 
 class EcgDatasetCompiler():
-    def __init__(self, dst_path: str, fs: int, sample_size: int, afib_thresh: float):
+    def __init__(self, dst_path: str, fs: int, sample_size: int, afib_thresh: float, filter=None, transform=None):
         self.dst_path = dst_path
         self.fs = fs
         self.slice_length = sample_size
         self.filter = BandPassFilter()
         self.afib_thresh = afib_thresh
+        self.transform = transform
 
     def compileEcgDataset(self, src_path: str):
         with open(src_path + "/RECORDS") as file:
@@ -180,8 +181,14 @@ class EcgDatasetCompiler():
             key_list = list(record.keys())
 
             for key in key_list:
-                dataset[f"sample{sample_idx}"] = record[key]
+                sample = record[key]
+                
+                if self.transform:
+                    sample = self.transform(sample)
+                
+                dataset[f"sample{sample_idx}"] = sample
                 annotation.append([file_idx,sample_idx,int(key[0]!='n')])
+                
                 sample_idx += 1
                 if len(dataset) == max_file_samples:
                     np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **dataset)
@@ -197,8 +204,14 @@ class EcgDatasetCompiler():
             lower_bound = upper_bound
             
             for key in key_list:
-                dataset[f"sample{sample_idx}"] = record[key]
+                sample = record[key]
+                
+                if self.transform:
+                    sample = self.transform(sample)
+                
+                dataset[f"sample{sample_idx}"] = sample
                 annotation.append([file_idx,sample_idx,int(key[0]!='n')])
+                
                 sample_idx += 1
                 if len(dataset) == max_file_samples:
                     np.savez(f"{self.dst_path}/dataset/samples{file_idx}.npz", **dataset)
@@ -265,8 +278,12 @@ class ToSpectrogram():
 
 class ToTensor():
     def __call__(self, sample):
-        sample = torch.tensor(sample)
-        return sample.reshape((-1,1,sample.shape[0],sample.shape[1]))
+        min_val = sample.min()
+        max_val = sample.max()
+        sample = (sample - min_val) / (max_val - min_val + 1e-8)
+
+        sample = torch.tensor(sample.astype(np.float32))
+        return sample.reshape((1,sample.shape[0],sample.shape[1]))
 
 
 class BandPassFilter():
