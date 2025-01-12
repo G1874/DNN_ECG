@@ -1,0 +1,75 @@
+import numpy as np
+import torch
+from torchvision import transforms
+import wfdb
+from Utils.preprocessing import ToSpectrogram, ToTensor, BandPassFilter
+from Network.afib_detector_v0_1 import AfibDetector
+
+
+class AfibInference():
+    def __init__(self):
+        self.model_path = "afib_detector_v0_1.pt"
+        self.fs = 250 # Sampling frequency
+        self.stride = 128
+
+        filter_config = {
+            "lowcut": 0.5,
+            "highcut": 50,
+            "fs": self.fs,
+            "order": 5
+        }
+        self.filter = BandPassFilter(filter_config)
+
+        sptectrogram_config = {
+            "window_size": 128,
+            "stride": 128//8,
+            "fs": self.fs
+        }
+
+        self.transform = transforms.Compose([
+            ToSpectrogram(sptectrogram_config),
+            ToTensor(),
+            transforms.Resize([64, 64])
+            # transforms.Normalize(mean=[0.5], std=[0.5])
+        ])
+
+    def preprocessSignal(self, signal, fs):
+        signal = signal[:,0]
+        
+        if fs != self.fs:
+            signal = wfdb.processing.resample_sig(
+                signal,
+                fs,             # Original frequency
+                self.fs         # Frequency target
+            )
+
+        if self.filter is not None:
+            signal = self.filter(signal)
+
+        return signal
+    
+    def makeInference(self, signal):
+        # TODO:
+        length = signal.shape[0]
+
+        output_mask = np.zeros(length)
+        overlap = np.zeros(length)
+
+        net = self.loadNetwork()
+
+
+
+    def classifySlice(self, net, slice):
+        input = self.transform(slice)
+        with torch.no_grad():
+            output = net(input)
+        prediction = torch.argmax(output)
+
+        return prediction
+
+    def loadNetwork(self):
+        net = AfibDetector()
+        net.load_state_dict(torch.load(self.model_path, weights_only=True))
+        net.eval()
+
+        return net

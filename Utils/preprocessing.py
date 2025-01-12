@@ -1,8 +1,8 @@
 import numpy as np
-import scipy as sc
+import pandas as pd
 from scipy.signal import ShortTimeFFT
 from scipy.signal.windows import hamming
-import pandas as pd
+from scipy.signal import butter, filtfilt
 import random
 import wfdb
 import torch
@@ -13,7 +13,6 @@ import os
 import shutil
 import csv
 import json
-from scipy.signal import butter, filtfilt
 
 
 class EcgDatasetCompiler():

@@ -20,9 +20,6 @@ def main(save_result_dir, records):
         print(f'took: {time.time() - start} seconds')
     print(f'full eval took {time.time() - eval_start} seconds')
 
-
-
-
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("save_result_dir")

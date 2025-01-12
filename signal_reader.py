@@ -1,26 +1,31 @@
-from abc import ABC, abstractmethod
+import numpy as np
+import wfdb
+import os
 
-import numpy as np  # wersja numpy 1.24.1
 
+class SignalReader():
+    def __init__(self, path):
+        self.path = path
 
-class SignalReader(ABC):
     '''
     Funkcja zwraca wczytany sygnal ekg.
     :return: ndarray postaci: n na c, gdzie n to liczba probek, m to ilosc kanalow
     '''
     def read_signal(self) -> np.ndarray:
-        raise NotImplementedError
+        record = wfdb.rdrecord(self.path)
+        return record.p_signal
 
     '''
     Funkcja zwraca czestotliwosc probkowania czytanego sygnalu
     :return: czestotliwosc probkowania
     '''
     def read_fs(self) -> float:
-        raise NotImplementedError
+        record = wfdb.rdrecord(self.path)
+        return record.fs
 
     '''
     Funkcja zwraca specjalny kod pod nazwa ktore nalezy zapisac wynik ewaluacji w klasie RecordEvaluator
     :return: kod identyfikujacy ewaluacje/nazwa pliku do zapisu ewaluacji
     '''
     def get_code(self) -> str:
-        raise NotImplementedError
+        return "./Output/" + os.path.basename(self.path)
