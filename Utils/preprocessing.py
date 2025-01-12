@@ -13,6 +13,7 @@ import os
 import shutil
 import csv
 import json
+from scipy.signal import butter, filtfilt
 
 
 class EcgDatasetCompiler():
@@ -54,7 +55,7 @@ class EcgDatasetCompiler():
                 )
 
             if self.filter is not None:
-                pass # TODO: Filter the waveform
+                waveform = self.filter(waveform)
         
             ann_labels = annotation.aux_note
             ann_samples = annotation.sample
@@ -286,8 +287,13 @@ class ToTensor():
 
 
 class BandPassFilter():
-    def __init__(self):
-        pass
+    def __init__(self, configuration: dict):
+        self.lowcut = configuration["lowcut"]
+        self.highcut = configuration["highcut"]
+        self.fs = configuration["fs"]
+        self.order = configuration["order"]
+        
+        self.b, self.a = butter(self.order, [self.lowcut / (0.5 * self.fs), self.highcut / (0.5 * self.fs)], btype='band')
 
-    def __call__(self):
-        pass
+    def __call__(self, signal):
+        return filtfilt(self.b, self.a, signal)
