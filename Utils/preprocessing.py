@@ -277,6 +277,10 @@ class ToSpectrogram():
 
 class ToTensor():
     def __call__(self, sample):
+        min_val = sample.min()
+        max_val = sample.max()
+        sample = (sample - min_val) / (max_val - min_val + 1e-8)
+
         sample = torch.tensor(sample.astype(np.float32))
         return sample.reshape((1,sample.shape[0],sample.shape[1]))
 
