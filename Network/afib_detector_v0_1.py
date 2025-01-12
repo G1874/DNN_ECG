@@ -32,7 +32,7 @@ class AfibDetector(nn.Module):
 
         self.dense2 = nn.Sequential(
             nn.Linear(64, 2),
-            # nn.Softmax(dim=2)
+            nn.Softmax(dim=1)
         )
 
     def forward(self, x):
