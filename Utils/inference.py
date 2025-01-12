@@ -52,11 +52,18 @@ class AfibInference():
         # TODO:
         length = signal.shape[0]
 
-        output_mask = np.zeros(length)
-        overlap = np.zeros(length)
+        output_mask = np.zeros(length, dtype=np.float32)
+        overlap = np.zeros(length, dtype=np.float32)
 
         net = self.loadNetwork()
 
+        for step in range(0, length//self.stride):
+            idx = step * self.stride
+            
+            overlap[idx:(idx+self.stride)] += 1.0
+            slice = signal[idx:(idx+self.stride)]
+            
+            prediction = self.classifySlice(net, slice)
 
 
     def classifySlice(self, net, slice):
@@ -73,3 +80,7 @@ class AfibInference():
         net.eval()
 
         return net
+    
+    def diceMetric(self):
+        # TODO:s
+        pass
