@@ -21,7 +21,7 @@ class EcgDatasetCompiler():
         self.dst_path = dst_path
         self.fs = fs
         self.slice_length = sample_size
-        self.filter = BandPassFilter()
+        self.filter = filter
         self.afib_thresh = afib_thresh
         self.transform = transform
 
@@ -287,11 +287,12 @@ class ToTensor():
 
 
 class BandPassFilter():
-    def __init__(self):
-        self.lowcut = 0.5
-        self.highcut = 50
-        self.fs = 250
-        self.order = 5
+    def __init__(self, configuration: dict):
+        self.lowcut = configuration["lowcut"]
+        self.highcut = configuration["highcut"]
+        self.fs = configuration["fs"]
+        self.order = configuration["order"]
+        
         self.b, self.a = butter(self.order, [self.lowcut / (0.5 * self.fs), self.highcut / (0.5 * self.fs)], btype='band')
 
     def __call__(self, signal):
