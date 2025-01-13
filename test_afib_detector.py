@@ -25,7 +25,7 @@ def main(save_result_dir, records):
     print(f'full eval took {time.time() - eval_start} seconds')
 
 if __name__ == "__main__":
-    save_result_dir = "./Testing"
+    save_result_dir = "./Testing/output"
     eval_files_list = "./Testing/input/RECORDS"
 
     with open(eval_files_list, 'r') as f:

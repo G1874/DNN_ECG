@@ -73,8 +73,8 @@ class AfibInference():
             overlap_vector = overlap[idx:(idx+self.window_size)]
 
             output_mask[idx:(idx+self.window_size)] = ((overlap_vector - 1) * p_output_vector + output_vector) / overlap_vector
-
-        output_mask = np.where(output_mask > 0.5, 1.0, 0.0)
+        
+        return np.where(output_mask > 0.5, 1.0, 0.0) #TODO: Resample back to original frequency
 
     def classifySlice(self, net, slice):
         input = self.transform(slice)

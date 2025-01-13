@@ -16,4 +16,4 @@ class SignalReader():
         return record.fs
 
     def get_code(self) -> str:
-        return "output/" + os.path.basename(self.path)
+        return os.path.basename(self.path)
