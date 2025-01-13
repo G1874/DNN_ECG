@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-# v0.1 - nasza implementacja sieci (50% ACC)
+# v0.1 - nasza implementacja sieci (73% ACC)
 class AfibDetector(nn.Module):
     def __init__(self):
         super(AfibDetector, self).__init__()
@@ -32,7 +32,7 @@ class AfibDetector(nn.Module):
 
         self.dense2 = nn.Sequential(
             nn.Linear(64, 2),
-            # nn.Softmax(dim=2)
+            nn.Softmax(dim=1)
         )
 
     def forward(self, x):
