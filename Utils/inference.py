@@ -10,7 +10,8 @@ class AfibInference():
     def __init__(self):
         self.model_path = "afib_detector_v0_1.pt"
         self.fs = 250 # Sampling frequency
-        self.stride = 128
+        self.stride = 1250
+        self.window_size = 1250
 
         filter_config = {
             "lowcut": 0.5,
@@ -49,7 +50,6 @@ class AfibInference():
         return signal
     
     def makeInference(self, signal):
-        # TODO:
         length = signal.shape[0]
 
         output_mask = np.zeros(length, dtype=np.float32)
@@ -59,12 +59,22 @@ class AfibInference():
 
         for step in range(0, length//self.stride):
             idx = step * self.stride
+
+            if (idx + self.window_size) >= length:
+                idx = (length - 1) - self.window_size
             
             overlap[idx:(idx+self.stride)] += 1.0
-            slice = signal[idx:(idx+self.stride)]
+            slice = signal[idx:(idx+self.window_size)]
             
             prediction = self.classifySlice(net, slice)
 
+            output_vector = np.ones[idx:(idx+self.window_size)] * prediction
+            p_output_vector = output_mask[idx:(idx+self.window_size)]
+            overlap_vector = overlap[idx:(idx+self.window_size)]
+
+            output_mask[idx:(idx+self.window_size)] = ((overlap_vector - 1) * p_output_vector + output_vector) / overlap_vector
+
+        output_mask = np.where(output_mask > 0.5, 1.0, 0.0)
 
     def classifySlice(self, net, slice):
         input = self.transform(slice)
