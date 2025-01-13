@@ -74,8 +74,6 @@ class AfibInference():
 
             output_mask[idx:(idx+self.window_size)] = ((overlap_vector - 1) * p_output_vector + output_vector) / overlap_vector
 
-        output_mask = np.where(output_mask > 0.5, 1.0, 0.0)    
-        
         if fs != self.fs:
             output_mask = wfdb.processing.resample_sig(
                 output_mask,
@@ -83,7 +81,7 @@ class AfibInference():
                 fs              # Frequency target
             )
 
-        return output_mask
+        return np.where(output_mask > 0.5, 1.0, 0.0) 
 
     def classifySlice(self, net, slice):
         input = self.transform(slice)
