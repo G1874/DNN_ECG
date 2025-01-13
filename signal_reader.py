@@ -9,7 +9,6 @@ class SignalReader():
 
     def read_signal(self) -> np.ndarray:
         record = wfdb.rdrecord(self.path)
-        
         return record.p_signal
 
     def read_fs(self) -> float:

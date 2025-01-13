@@ -10,7 +10,7 @@ Wykrywanie migotania przedsionków na sygnałach ECG.
 - [x] Podzielić dataset na trening i walidacje
 - [x] Transformacje (ToSpectrogram i ToTensor)
 - [x] Pierwsza wersja sieci
-- [ ] Detekcja dostosowana do wymagań ewaluacji
+- [x] Detekcja dostosowana do wymagań ewaluacji
 - [ ] Sprawdzić działanie inferencji na testerce
 - [ ] Zweryfikować poprawność kodu do kompozycji datasetu i treningu sieci
 
