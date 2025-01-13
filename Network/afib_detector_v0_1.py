@@ -1,9 +1,10 @@
 import torch.nn as nn
 
-# v0.1 - nasza implementacja sieci (73% ACC)
+
+# v0.1 - nasza implementacja sieci (94% ACC)
 class AfibDetector(nn.Module):
     def __init__(self):
-        super(AfibDetector, self).__init__()
+        super().__init__()
         
         self.conv1 = nn.Sequential(
             nn.Conv2d(1, 16, 5),
