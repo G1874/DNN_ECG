@@ -1,4 +1,6 @@
 env/
 Data/
+Testing/output
+Playground/
 .idea/
 __pycache__/
