@@ -8,7 +8,7 @@ from Network.afib_detector_v0_1 import AfibDetector
 
 class AfibInference():
     def __init__(self):
-        self.model_path = "afib_detector_v0_1.pt"
+        self.model_path = "./Models/afib_detector_v0_1_3.pt"
         self.fs = 250 # Sampling frequency
         self.stride = 1250
         self.window_size = 1250
@@ -68,7 +68,7 @@ class AfibInference():
             
             prediction = self.classifySlice(net, slice)
 
-            output_vector = np.ones[idx:(idx+self.window_size)] * prediction
+            output_vector = np.ones(self.window_size) * prediction.numpy()
             p_output_vector = output_mask[idx:(idx+self.window_size)]
             overlap_vector = overlap[idx:(idx+self.window_size)]
 
@@ -78,6 +78,8 @@ class AfibInference():
 
     def classifySlice(self, net, slice):
         input = self.transform(slice)
+        input = input.reshape((1,input.shape[0],input.shape[1],input.shape[2]))
+
         with torch.no_grad():
             output = net(input)
         prediction = torch.argmax(output)
@@ -90,7 +92,3 @@ class AfibInference():
         net.eval()
 
         return net
-    
-    def diceMetric(self):
-        # TODO:s
-        pass
