@@ -15,7 +15,7 @@ class RecordEvaluator(AfibInference):
         fs = signal_reader.read_fs()
 
         signal = self.preprocessSignal(signal, fs)
-        afib_mask = self.makeInference(signal)
+        afib_mask = self.makeInference(signal, fs)
         
         code = signal_reader.get_code()
         np.save(os.path.join(self._dest_dir, f'{code}'), afib_mask)
