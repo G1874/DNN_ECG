@@ -3,12 +3,12 @@ import torch
 from torchvision import transforms
 import wfdb
 from Utils.preprocessing import ToSpectrogram, ToTensor, BandPassFilter
-from Network.afib_detector_v0_1 import AfibDetector
+from Network.afib_detector_v1_0 import AfibDetector
 
 
 class AfibInference():
     def __init__(self):
-        self.model_path = "./Models/afib_detector_v0_1_4.pt"
+        self.model_path = "./Models/afib_detector_v1_0_4.pt"
         self.fs = 250 # Sampling frequency
         self.stride = 1250 // 2
         self.window_size = 1250
@@ -95,7 +95,9 @@ class AfibInference():
 
     def loadNetwork(self):
         net = AfibDetector()
-        net.load_state_dict(torch.load(self.model_path, weights_only=True))
+        net.load_state_dict(torch.load(self.model_path,
+                                       weights_only=True,
+                                       map_location=torch.device('cpu')))
         net.eval()
 
         return net
