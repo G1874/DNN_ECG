@@ -38,7 +38,7 @@ class AfibInference():
         signal = signal[:,0]
         
         if fs != self.fs:
-            signal = processing.resample_sig(
+            signal, _ = processing.resample_sig(
                 signal,
                 fs,             # Original frequency
                 self.fs         # Frequency target
@@ -75,7 +75,7 @@ class AfibInference():
             output_mask[idx:(idx+self.window_size)] = ((overlap_vector - 1) * p_output_vector + output_vector) / overlap_vector
 
         if fs != self.fs:
-            output_mask = processing.resample_sig(
+            output_mask, _ = processing.resample_sig(
                 output_mask,
                 self.fs,        # Original frequency
                 fs              # Frequency target
