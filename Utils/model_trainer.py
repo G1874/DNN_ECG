@@ -34,7 +34,7 @@ class ModelTrainer():
                 scheduler.step()
 
             # Track best performance, and save the model's state
-            if (avg_vloss < best_vloss) and (self.save_model_path):
+            if (avg_vloss > best_vloss) and (self.save_model_path):
                 best_vloss = avg_vloss
                 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
                 model_path = f"{self.save_model_path}-{timestamp}.pt"
