@@ -1,7 +1,5 @@
 import os
-
 import numpy as np
-
 from signal_reader import SignalReader
 
 

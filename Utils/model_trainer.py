@@ -6,7 +6,7 @@ class ModelTrainer():
         pass
 
     def train_model(self, net, train_loader:DataLoader, val_loader:DataLoader,
-                    loss_fn, optimizer, device:torch.device, epchos:int):
+                    loss_fn, optimizer, device:torch.device, epchos:int, scheduler=None):
         self.net = net
         self.train_loader = train_loader
         self.loss_fn = loss_fn
@@ -24,6 +24,9 @@ class ModelTrainer():
                 self.loss_fn,
                 self.device
             )
+
+            if scheduler:
+                scheduler.step()
 
             print(f'LOSS train {avg_loss} valid {avg_vloss} ACCURACY {vaccuracy}')
 

@@ -1,5 +1,3 @@
-#TODO:
-
 #!/bin/bash
 
 conda install python=3.11
