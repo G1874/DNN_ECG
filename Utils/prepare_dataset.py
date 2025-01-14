@@ -1,15 +1,19 @@
 from preprocessing import EcgDatasetCompiler, ToSpectrogram, BandPassFilter
 from torchvision import transforms
 
+
 #
 # Prepare dataset for training.
-# For now works only for mit_bih_atrial_fibrillation_database.
 #
+
+fs = 250                # Sampling rate in Hz.
+slice_size = 5*fs       # Size of the slice of the signal that is
+                        # fed into the network. (5s)
 
 filter_config = {
     "lowcut": 0.5,
     "highcut": 50,
-    "fs": 250,
+    "fs": fs,
     "order": 5
 }
 
@@ -18,20 +22,20 @@ band_pass_filter = BandPassFilter(filter_config)
 sptectrogram_config = {
     "window_size": 128,
     "stride": 128//8,
-    "fs": 250
+    "fs": fs
 }
 
 transform = transforms.Compose([ToSpectrogram(sptectrogram_config)])
 
 ecgDatasetCompiler = EcgDatasetCompiler(
-    "Data/training_data",   # Output path of the compiled dataset.
-    250,                    # Sampling rate in Hz.
-    5*250,                  # Size of a single slice of the record.
-    0.5,                    # Threshold of afib ratio in a slice to classify it as afib
-    filter=band_pass_filter,
-    transform=transform,
+    "Data/training_data",       # Output path of the compiled dataset.
+    fs,                         # Sampling rate in Hz.
+    slice_size,                 # Size of a single slice of the record.
+    0.5,                        # Threshold of afib ratio in a slice to classify it as afib.
+    filter=band_pass_filter,    # Band pass filter used on the signal in preprocessing
+    transform=transform,        # Transforms used on a slice of the signal in preprocessing.
 )
 
 if __name__ == "__main__":
-    ecgDatasetCompiler.compileEcgDataset("./Data/mit_bih_atrial_fibrillation_database/files")
+    ecgDatasetCompiler.compileEcgDataset("./Data/RECORDS")
     ecgDatasetCompiler.restructureDataset(delete_files=True, max_file_samples=10000)

@@ -20,6 +20,7 @@ def drawSignal(signal, afib_ranges, eval_mask):
 
     _, ax = plt.subplots()
     ax.plot(signal)
+    # ax.plot(eval_mask)
     for x1, x2 in afib_ranges:
         ax.axvspan(x1, x2, alpha=0.5, color='red')
     for x1, x2 in zip(eval_range_start, eval_range_end):

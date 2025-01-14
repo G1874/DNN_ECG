@@ -27,7 +27,7 @@ def main(save_result_dir, records):
 
         eval_mask = np.load(os.path.join(save_result_dir, f"{record_file_name}.npy"))
 
-        drawSignal(signal, afib_ranges, eval_mask)
+        # drawSignal(signal, afib_ranges, eval_mask)
 
         TP, _, FP, FN = confusionMatrix(ref_mask, eval_mask)
 
@@ -44,6 +44,8 @@ if __name__ == "__main__":
     eval_files_list = "./Testing/input/RECORDS"
 
     with open(eval_files_list, 'r') as f:
-        records = f.read().split('\n')
+        records = f.read()
+
+    records = [item for item in records.split("\n") if item]
 
     main(save_result_dir, records)
