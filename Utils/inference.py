@@ -8,9 +8,9 @@ from Network.afib_detector_v0_1 import AfibDetector
 
 class AfibInference():
     def __init__(self):
-        self.model_path = "./Models/afib_detector_v0_1_3.pt"
+        self.model_path = "./Models/afib_detector_v0_1_4.pt"
         self.fs = 250 # Sampling frequency
-        self.stride = 1250
+        self.stride = 1250 // 2
         self.window_size = 1250
 
         filter_config = {
@@ -63,7 +63,7 @@ class AfibInference():
             if (idx + self.window_size) >= length:
                 idx = (length - 1) - self.window_size
             
-            overlap[idx:(idx+self.stride)] += 1.0
+            overlap[idx:(idx+self.window_size)] += 1.0
             slice = signal[idx:(idx+self.window_size)]
             
             prediction = self.classifySlice(net, slice)

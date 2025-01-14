@@ -25,7 +25,8 @@ class EcgDatasetCompiler():
         self.transform = transform
 
     def compileEcgDataset(self, src_path: str):
-        with open(src_path + "/RECORDS") as file:
+        dir_path = os.path.dirname(src_path)
+        with open(src_path) as file:
             RECORDS = file.read()
 
         RECORDS = [item for item in RECORDS.split("\n") if item]
@@ -35,14 +36,16 @@ class EcgDatasetCompiler():
         info_dict = dict()
 
         print("Compiling dataset")
-        for record_idx in tqdm(RECORDS):
+        for record_name in tqdm(RECORDS):
+            record_idx = os.path.basename(record_name)
+
             try:
-                record = wfdb.rdrecord(src_path + "/" + record_idx)
+                record = wfdb.rdrecord(os.path.join(dir_path, record_name))
             except:
                 print(f" Failed to load record {record_idx}")
                 continue
 
-            annotation = wfdb.rdann(src_path + "/" + record_idx, 'atr')
+            annotation = wfdb.rdann(os.path.join(dir_path, record_name), 'atr')
             waveform = record.p_signal[:,0]
 
             if record.fs != self.fs:

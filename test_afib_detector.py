@@ -32,6 +32,8 @@ if __name__ == "__main__":
         os.makedirs(save_result_dir)
 
     with open(eval_files_list, 'r') as f:
-        records = f.read().split('\n')
+        records = f.read()
+
+    records = [item for item in records.split("\n") if item]
     
     main(save_result_dir, records)
