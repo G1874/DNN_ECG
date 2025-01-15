@@ -8,7 +8,7 @@ from afib_detector_v1_0 import AfibDetector
 
 class AfibInference():
     def __init__(self):
-        self.model_path = "./afib_detector_v1_0_4.pt"
+        self.model_path = "./afib_detector_v1_0_3.pt"
         self.fs = 250 # Sampling frequency
         self.stride = 1250
         self.window_size = 1250

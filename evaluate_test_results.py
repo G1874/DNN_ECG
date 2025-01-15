@@ -6,12 +6,13 @@ import wfdb
 from Utils.dice_metric import drawSignal, diceMetric, confusionMatrix
 
 
-database_path = './Data/mit_bih_atrial_fibrillation_database/files'
+database_path = './Data'
 
 def main(save_result_dir, records):
     ecgDatasetCompiler = EcgDatasetCompiler(None, None, None, None)
     
     cum_TP = 0
+    cum_TN = 0
     cum_FP = 0
     cum_FN = 0
 
@@ -25,19 +26,24 @@ def main(save_result_dir, records):
 
         afib_ranges, ref_mask = ecgDatasetCompiler.getAfibMask(signal, ann_samples, ann_labels)
 
-        eval_mask = np.load(os.path.join(save_result_dir, f"{record_file_name}.npy"))
+        record_idx = os.path.basename(record_file_name)
+        eval_mask = np.load(os.path.join(save_result_dir, f"{record_idx}.npy"))
 
         # drawSignal(signal, afib_ranges, eval_mask)
 
-        TP, _, FP, FN = confusionMatrix(ref_mask, eval_mask)
+        TP, TN, FP, FN = confusionMatrix(ref_mask, eval_mask)
 
+        print(f"Metrics for the record: TP={TP}, TN={TN}, FP={FP}, FN={FN}")
         print(f"Accuracy for record {record_file_name}: {diceMetric(TP,FP,FN)}")
 
         cum_TP += TP
+        cum_TN += TN
         cum_FP += FP
         cum_FN += FN
     
+    print(f"Overall metrics: TP={cum_TP}, TN={cum_TN}, FP={cum_FP}, FN={cum_FN}")
     print(f"Overall accuracy: {diceMetric(cum_TP,cum_FP,cum_FN)}")
+    print(f"Averaged accuracy: {diceMetric(cum_TP,cum_FP,cum_FN)}")
 
 if __name__ == "__main__":
     save_result_dir = "./Testing/output"

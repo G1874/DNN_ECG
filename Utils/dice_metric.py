@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+
 def drawSignal(signal, afib_ranges, eval_mask):
     eval_range_start = []
     eval_range_end = []

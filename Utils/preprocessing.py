@@ -5,6 +5,7 @@ from scipy.signal.windows import hamming
 from scipy.signal import butter, filtfilt
 import random
 import wfdb
+from wfdb import processing
 import torch
 from torch.utils.data import Dataset
 from tqdm import tqdm
@@ -49,7 +50,7 @@ class EcgDatasetCompiler():
             waveform = record.p_signal[:,0]
 
             if record.fs != self.fs:
-                waveform, annotation = wfdb.processing.resample_multichan(
+                waveform, annotation = processing.resample_singlechan(
                     waveform, 
                     annotation,
                     record.fs,
@@ -94,7 +95,7 @@ class EcgDatasetCompiler():
         with open(self.dst_path + "/info.txt", 'w') as f:
             json.dump(info_dict, f)
 
-    def getAfibMask(self, waveform, ann_samples, ann_labels):
+    def getAfibMask(self, waveform, ann_samples, ann_labels): # TODO: Fix.
         afib_mask = np.zeros(waveform.shape[0])
         afib_ranges = []
         for i, label in enumerate(ann_labels):

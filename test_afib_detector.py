@@ -4,7 +4,7 @@ from signal_reader import SignalReader
 from record_evaluator import RecordEvaluator
 
 
-database_path = './Data/mit_bih_atrial_fibrillation_database/files'
+database_path = './Data'
 
 def main(save_result_dir, records):
     print(f'no of records: {len(records)}')
