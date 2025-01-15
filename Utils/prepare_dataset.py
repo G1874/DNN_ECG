@@ -8,7 +8,7 @@ from torchvision import transforms
 
 fs = 250                # Sampling rate in Hz.
 slice_size = 5*fs       # Size of the slice of the signal that is
-                        # fed into the network. (5s)
+                        # fed into the network (5s).
 
 filter_config = {
     "lowcut": 0.5,
