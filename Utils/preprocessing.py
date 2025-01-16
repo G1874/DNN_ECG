@@ -95,16 +95,25 @@ class EcgDatasetCompiler():
         with open(self.dst_path + "/info.txt", 'w') as f:
             json.dump(info_dict, f)
 
-    def getAfibMask(self, waveform, ann_samples, ann_labels): # TODO: Fix.
+    def getAfibMask(self, waveform, ann_samples, ann_labels):
+        samples = []
+        labels = []
+        for sample, label in zip(ann_samples, ann_labels):
+            if label != '':
+                samples.append(sample)
+                labels.append(label)
+        
+        samples = np.array(samples)
+        
         afib_mask = np.zeros(waveform.shape[0])
         afib_ranges = []
-        for i, label in enumerate(ann_labels):
-            if label == '(AFIB' and i != (len(ann_labels) - 1):
-                afib_mask[ann_samples[i]:ann_samples[i+1]] = 1
-                afib_ranges.append([ann_samples[i], ann_samples[i+1]])
+        for i, label in enumerate(labels):
+            if label == '(AFIB' and i != (len(labels) - 1):
+                afib_mask[samples[i]:samples[i+1]] = 1
+                afib_ranges.append([samples[i], samples[i+1]])
             elif label == '(AFIB':
-                afib_mask[ann_samples[i]:] = 1
-                afib_ranges.append([ann_samples[i], (waveform.shape[0]-1)])
+                afib_mask[samples[i]:] = 1
+                afib_ranges.append([samples[i], (waveform.shape[0]-1)])
 
         afib_ranges = np.array(afib_ranges)
 
