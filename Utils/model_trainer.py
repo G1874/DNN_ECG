@@ -16,7 +16,7 @@ class ModelTrainer():
         self.optimizer = optimizer
         self.device = device
 
-        best_vloss = 0
+        best_vloss = float('inf')
 
         for epoch in range(epchos):
             print(f'EPOCH {epoch + 1}:')
@@ -34,7 +34,7 @@ class ModelTrainer():
                 scheduler.step()
 
             # Track best performance, and save the model's state
-            if (avg_vloss > best_vloss) and (self.save_model_path):
+            if (avg_vloss < best_vloss) and (self.save_model_path):
                 best_vloss = avg_vloss
                 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
                 model_path = f"{self.save_model_path}-{timestamp}.pt"

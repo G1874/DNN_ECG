@@ -57,6 +57,8 @@ class EcgDatasetCompiler():
                     self.fs
                 )
 
+            # waveform = processing.normalize_bound(waveform, -1, 1)
+
             if self.filter is not None:
                 waveform = self.filter(waveform)
         
@@ -100,8 +102,9 @@ class EcgDatasetCompiler():
         labels = []
         for sample, label in zip(ann_samples, ann_labels):
             if label != '':
-                samples.append(sample)
-                labels.append(label)
+                if label[0] == '(':
+                    samples.append(sample)
+                    labels.append(label)
         
         samples = np.array(samples)
         
