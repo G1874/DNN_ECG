@@ -18,7 +18,7 @@ class AfibDetector(nn.Module):
         )
 
         self.fc1 = nn.Sequential(
-            nn.Linear(32 * 4 * 4, 100),
+            nn.Linear(32 * 15 * 2, 100),
             nn.ReLU()
         )
 
