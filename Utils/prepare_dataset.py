@@ -37,5 +37,5 @@ ecgDatasetCompiler = EcgDatasetCompiler(
 )
 
 if __name__ == "__main__":
-    ecgDatasetCompiler.compileEcgDataset("./Data/RECORDS")
+    ecgDatasetCompiler.compileEcgDataset("./Data/RECORDS_v2")
     ecgDatasetCompiler.restructureDataset(delete_files=True, max_file_samples=10000)
