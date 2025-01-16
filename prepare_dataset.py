@@ -1,4 +1,4 @@
-from preprocessing import EcgDatasetCompiler, ToSpectrogram, BandPassFilter
+from Utils.preprocessing import EcgDatasetCompiler, ToSpectrogram, BandPassFilter
 from torchvision import transforms
 
 
@@ -38,4 +38,4 @@ ecgDatasetCompiler = EcgDatasetCompiler(
 
 if __name__ == "__main__":
     ecgDatasetCompiler.compileEcgDataset("./Data/RECORDS")
-    ecgDatasetCompiler.restructureDataset(delete_files=True, max_file_samples=10000)
+    ecgDatasetCompiler.restructureDataset(delete_files=False, max_file_samples=10000)
