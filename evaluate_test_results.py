@@ -29,7 +29,7 @@ def main(save_result_dir, records):
         record_idx = os.path.basename(record_file_name)
         eval_mask = np.load(os.path.join(save_result_dir, f"{record_idx}.npy"))
 
-        # drawSignal(signal, afib_ranges, eval_mask)
+        drawSignal(signal, afib_ranges, eval_mask)
 
         TP, TN, FP, FN = confusionMatrix(ref_mask, eval_mask)
 
@@ -43,11 +43,10 @@ def main(save_result_dir, records):
     
     print(f"Overall metrics: TP={cum_TP}, TN={cum_TN}, FP={cum_FP}, FN={cum_FN}")
     print(f"Overall accuracy: {diceMetric(cum_TP,cum_FP,cum_FN)}")
-    print(f"Averaged accuracy: {diceMetric(cum_TP,cum_FP,cum_FN)}")
 
 if __name__ == "__main__":
     save_result_dir = "./Testing/output"
-    eval_files_list = "./Testing/input/RECORDS_v2"
+    eval_files_list = "./Testing/input/RECORDS"
 
     with open(eval_files_list, 'r') as f:
         records = f.read()
