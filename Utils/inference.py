@@ -8,7 +8,7 @@ from Network.afib_detector_v1_0 import AfibDetector
 
 class AfibInference():
     def __init__(self):
-        self.model_path = "./Models/experiments/afib_detector_v1_1_0-20250117_003544.pt"
+        self.model_path = "./Models/experiments/afib_detector_v1_1_0-20250117_012340.pt"
         self.fs = 250 # Sampling frequency
         self.stride = 1250
         self.inference_window = 1250
@@ -43,6 +43,8 @@ class AfibInference():
                 fs,             # Original frequency
                 self.fs         # Frequency target
             )
+
+        signal = processing.normalize_bound(signal, -1, 1)
 
         if self.filter is not None:
             signal = self.filter(signal)
