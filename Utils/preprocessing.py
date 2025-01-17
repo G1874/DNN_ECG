@@ -57,7 +57,7 @@ class EcgDatasetCompiler():
                     self.fs
                 )
 
-            # waveform = processing.normalize_bound(waveform, -1, 1)
+            waveform = processing.normalize_bound(waveform, -1, 1)
 
             if self.filter is not None:
                 waveform = self.filter(waveform)
@@ -284,7 +284,8 @@ class ToSpectrogram():
         w = hamming(self.w_N, True)
         STFT = ShortTimeFFT(w, self.hop, self.fs)
         Sx2 = STFT.spectrogram(sample)
-        Sx_dB = 10 * np.log10(np.clip(Sx2, 1e-4, 1e4))
+        # Sx_dB = 10 * np.log10(np.clip(Sx2, 1e-4, 1e4))
+        Sx_dB = 10 * np.log10(Sx2)
         Sx_dB = Sx_dB[:,(-STFT.p_min):(STFT.p_max(sample.shape[0]))]
         Sx_dB = np.flip(Sx_dB, axis=0)
 
