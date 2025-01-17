@@ -6,7 +6,7 @@ from torchvision import transforms
 # Prepare dataset for training.
 #
 
-fs = 250                # Sampling rate in Hz.
+fs = 125                # Sampling rate in Hz.
 slice_size = 5*fs       # Size of the slice of the signal that is
                         # fed into the network (5s).
 

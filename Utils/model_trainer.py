@@ -37,7 +37,7 @@ class ModelTrainer():
             if (avg_vloss < best_vloss) and (self.save_model_path):
                 best_vloss = avg_vloss
                 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-                model_path = f"{self.save_model_path}-{timestamp}.pt"
+                model_path = f"{self.save_model_path}-{timestamp}-{epoch+1}.pt"
                 torch.save(self.net.state_dict(), model_path)
 
             print(f'LOSS train {avg_loss} valid {avg_vloss} ACCURACY {vaccuracy}')
@@ -83,7 +83,7 @@ class ModelTrainer():
                 loss = loss_fn(outputs, reference)
                 running_loss += loss.item()
 
-                predictions = torch.max(outputs, 1)[1].to(device)
+                predictions = torch.argmax(outputs, dim=1)
                 correct += (predictions == reference).sum()
                 total += len(reference)
 
