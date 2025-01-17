@@ -24,7 +24,7 @@ class AfibDetector(nn.Module):
             nn.MaxPool2d(2)
         )
 
-        self.dropout = nn.Dropout(0.25)
+        self.dropout = nn.Dropout(0.4)
 
         self.dense1 = nn.Sequential(
             nn.Linear(6*6*64, 64),
@@ -32,8 +32,7 @@ class AfibDetector(nn.Module):
         )
 
         self.dense2 = nn.Sequential(
-            nn.Linear(64, 2),
-            nn.Softmax(dim=1)
+            nn.Linear(64, 2)
         )
 
     def forward(self, x):

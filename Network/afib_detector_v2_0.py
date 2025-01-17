@@ -25,8 +25,7 @@ class AfibDetector(nn.Module):
         self.dropout = nn.Dropout(0.25)
 
         self.fc2 = nn.Sequential(
-            nn.Linear(100, 2),
-            nn.Softmax(1)
+            nn.Linear(100, 2)
         )
     
     def forward(self, x):

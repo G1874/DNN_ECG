@@ -3,34 +3,36 @@ from matplotlib import pyplot as plt
 
 
 def drawSignal(signal, afib_ranges=None, eval_mask=None):
-    if type(eval_mask) != type(None):
-        eval_range_start = []
-        eval_range_end = []
-        for i, element in enumerate(eval_mask):
-            if i == 0:
-                if element == 1:
-                    eval_range_start.append(i)
-                continue
-            if (element == 1) and (eval_mask[i-1] == 0):
-                eval_range_start.append(i)
+    # if type(eval_mask) != type(None):
+    #     eval_range_start = []
+    #     eval_range_end = []
+    #     for i, element in enumerate(eval_mask):
+    #         if i == 0:
+    #             if element == 1:
+    #                 eval_range_start.append(i)
+    #             continue
+    #         if (element == 1) and (eval_mask[i-1] == 0):
+    #             eval_range_start.append(i)
 
-            if i == (eval_mask.size - 1) and element == 1:
-                eval_range_end.append(i)
-                continue
-            if (element == 0) and (eval_mask[i-1] == 1):
-                eval_range_end.append(i)
+    #         if i == (eval_mask.size - 1) and element == 1:
+    #             eval_range_end.append(i)
+    #             continue
+    #         if (element == 0) and (eval_mask[i-1] == 1):
+    #             eval_range_end.append(i)
 
     _, ax = plt.subplots()
     ax.plot(signal)
-    # ax.plot(eval_mask)
+
+    if type(eval_mask) != type(None):
+        ax.plot(eval_mask)
 
     if type(afib_ranges) != type(None):
         for x1, x2 in afib_ranges:
             ax.axvspan(x1, x2, alpha=0.5, color='red')
     
-    if type(eval_mask) != type(None):
-        for x1, x2 in zip(eval_range_start, eval_range_end):
-            ax.axvspan(x1, x2, alpha=0.5, color='blue')
+    # if type(eval_mask) != type(None):
+    #     for x1, x2 in zip(eval_range_start, eval_range_end):
+    #         ax.axvspan(x1, x2, alpha=0.5, color='blue')
     
     plt.show()
 
