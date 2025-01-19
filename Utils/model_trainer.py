@@ -91,12 +91,3 @@ class ModelTrainer():
         accuracy = correct / total
 
         return avg_loss, accuracy
-
-    # def save_checkpoint(epoch, model, optimizer, path):
-    #     checkpoint = {
-    #         'epoch': epoch,
-    #         'model_state_dict': model.state_dict(),
-    #         'optimizer_state_dict': optimizer.state_dict(),
-    #     }
-    #     torch.save(checkpoint, path)
-    #     print(f"Checkpoint saved at epoch {epoch}")
