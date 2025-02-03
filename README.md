@@ -11,12 +11,12 @@ Wykrywanie migotania przedsionków na sygnałach ECG.
 - [x] Transformacje (ToSpectrogram i ToTensor)
 - [x] Pierwsza wersja sieci
 - [x] Detekcja dostosowana do wymagań ewaluacji
-- [ ] Sprawdzić działanie inferencji na testerce
-- [ ] Zweryfikować poprawność kodu do kompozycji datasetu i treningu sieci
+- [x] Sprawdzić działanie inferencji na testerce
+- [x] Zweryfikować poprawność kodu do kompozycji datasetu i treningu sieci
 
 ### Biblioteki:
-* wfdb - pobieranie baz danych
-* numpy 1.26.4 - starsza wersja żeby wfdb działało
+* wfdb - obsługa baz danych
+* numpy 1.26.4 - starsza wersja kompatybilna z wfdb
 * tqdm - terminal progress bar
 * pandas
 * torch

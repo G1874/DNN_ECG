@@ -1,4 +1,0 @@
-afib_detector_v1_0_1.pt - Struktura: afib_detector_v0_1.py, ???% acc, 5 epok
-afib_detector_v1_0_2.pt - Struktura: afib_detector_v0_1.py, ~93% acc, 5 epok, mit_bih dataset bez filtracji
-afib_detector_v1_0_3.pt - Struktura: afib_detector_v0_1.py, ~93% acc, 5 epok, mit_bih dataset z filtracją
-afib_detector_v1_0_4.pt - Struktura: afib_detector_v0_1.py, 96.13% acc, 10 epok, mit_bih dataset z filtracją

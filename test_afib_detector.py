@@ -26,7 +26,7 @@ def main(save_result_dir, records):
 
 if __name__ == "__main__":
     save_result_dir = "./Testing/output"
-    eval_files_list = "./Testing/input/RECORDS"
+    eval_files_list = "./Testing/RECORDS"
 
     if not os.path.exists(save_result_dir):
         os.makedirs(save_result_dir)

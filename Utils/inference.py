@@ -3,27 +3,27 @@ import torch
 from torchvision import transforms
 from wfdb import processing
 from Utils.preprocessing import ToSpectrogram, ToTensor, BandPassFilter
-from Network.afib_detector_v4_0 import AfibDetector
+from Network.afib_detector_v4_2 import AfibDetector
 
 
 class AfibInference():
     def __init__(self):
-        self.model_path = "./Models/afib_detector_v4_1_1/afib_detector_v4_1_1-20250117_221903-2.pt"
+        self.model_path = "./Models/afib_detector_v4_2_2/afib_detector_v4_2_2-20250124_203052-6.pt"
         self.fs = 125 # Sampling frequency
-        self.inference_window = 5 * self.fs
-        self.stride = 5 * self.fs
+        self.inference_window = 10 * self.fs
+        self.stride = 10 * self.fs
 
         filter_config = {
             "lowcut": 0.5,
             "highcut": 50,
             "fs": self.fs,
-            "order": 5
+            "order": 7
         }
         self.filter = BandPassFilter(filter_config)
 
         sptectrogram_config = {
             "window_size": 128,
-            "stride": 128//8,
+            "stride": 128//4,
             "fs": self.fs
         }
 

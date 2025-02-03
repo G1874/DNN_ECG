@@ -1,7 +1,6 @@
 import torch.nn as nn
 
 
-# v0.2 - implementacja sieci z artykułu
 class AfibDetector(nn.Module):
     def __init__(self):
         super().__init__()

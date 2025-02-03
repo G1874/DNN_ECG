@@ -7,21 +7,21 @@ from torchvision import transforms
 #
 
 fs = 125                # Sampling rate in Hz.
-slice_size = 5*fs       # Size of the slice of the signal that is
-                        # fed into the network (5s).
+slice_size = 10*fs      # Size of the slice of the signal that is
+                        # fed into the network (10s).
 
 filter_config = {
     "lowcut": 0.5,
     "highcut": 50,
     "fs": fs,
-    "order": 5
+    "order": 7
 }
 
 band_pass_filter = BandPassFilter(filter_config)
 
 sptectrogram_config = {
     "window_size": 128,
-    "stride": 128//8,
+    "stride": 128//4,
     "fs": fs
 }
 
